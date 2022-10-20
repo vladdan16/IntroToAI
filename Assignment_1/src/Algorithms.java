@@ -26,14 +26,18 @@ public class Algorithms {
         int pathLengthWithoutTortuga = pathWithoutTortuga.size() - 1;
         minPathLength = 99;
         System.out.println("Algorithm without tortuga is finished");
-        Stack<Node> pathWithTortuga = traverse(visited, map.getJack(), map, map.getTortuga(), false);
-        int pathLengthWithTortuga = pathWithTortuga.size() - 1;
-        if (pathLengthWithTortuga < pathLengthWithoutTortuga) {
-            minPathLength = 99;
-            Stack<Node> pathAfterTortuga = traverse(visited, map.getTortuga(), map, map.getChest(), true);
-            pathAfterTortuga.pop();
-            pathWithTortuga.addAll(pathAfterTortuga);
+        int pathLengthWithTortuga = 81;
+        Stack<Node> pathWithTortuga = new Stack<>();
+        if (pathLengthWithoutTortuga > Math.max(Math.abs(map.getJack().x - map.getTortuga().x), Math.abs(map.getJack().y - map.getTortuga().y)) + Math.max(Math.abs(map.getTortuga().x - map.getChest().x), Math.abs(map.getTortuga().y - map.getChest().y))) {
+            pathWithTortuga = traverse(visited, map.getJack(), map, map.getTortuga(), false);
             pathLengthWithTortuga = pathWithTortuga.size() - 1;
+            if (pathLengthWithTortuga < pathLengthWithoutTortuga) {
+                minPathLength = 99;
+                Stack<Node> pathAfterTortuga = traverse(visited, map.getTortuga(), map, map.getChest(), true);
+                pathAfterTortuga.pop();
+                pathWithTortuga.addAll(pathAfterTortuga);
+                pathLengthWithTortuga = pathWithTortuga.size() - 1;
+            }
         }
         if (Math.min(pathLengthWithoutTortuga, pathLengthWithTortuga) >= 80) {
             backtrackingWriter.println("Lose");
@@ -49,6 +53,7 @@ public class Algorithms {
             displayResult(pathWithTortuga, map, backtrackingWriter);
         }
     }
+
     private Stack<Node> traverse(Set<Node> visited, Node node, Map map, Node dest, boolean tortuga) {
         if (node == dest) {
             Stack<Node> t = new Stack<>();
@@ -93,8 +98,19 @@ public class Algorithms {
         for (int x = Math.max(0, node.x - 1); x <= Math.min(8, node.x + 1); x++) {
             for (int y = Math.max(0, node.y - 1); y <= Math.min(8, node.y + 1); y++) {
                 if (!curVisited.contains(map.getNode(x, y))) {
-                    if (minPathLengthArray[x][y] < visited.size() + Math.max(Math.abs(node.x - map.getChest().x), Math.abs(node.y - map.getChest().y)))
+                    if (minPathLengthArray[x][y] < visited.size() + Math.max(Math.abs(node.x - dest.x), Math.abs(node.y - dest.y)))
                         continue;
+                    if (Math.max(Math.abs(x - dest.x), Math.abs(y - dest.y)) > Math.max(Math.abs(node.x - dest.x), Math.abs(node.y - dest.y)))
+                        continue;
+                    else if (Math.max(Math.abs(x - dest.x), Math.abs(y - dest.y)) == Math.max(Math.abs(node.x - dest.x), Math.abs(node.y - dest.y))) {
+                        if (x == node.x) {
+                            if (Math.abs(y - dest.y) > Math.abs(node.y - dest.y))
+                                continue;
+                        } else if (y == node.y) {
+                            if (Math.abs(x - dest.x) > Math.abs(node.x - dest.x))
+                                continue;
+                        }
+                    }
                     Stack<Node> t = traverse(curVisited, map.getNode(x, y), map, dest, tortuga);
                     int l = t.size();
                     minPathLengthArray[node.x][node.y] = Math.min(minPathLengthArray[node.x][node.y], l + visited.size());
@@ -102,7 +118,7 @@ public class Algorithms {
                         min = l;
                         minPath.clear();
                         minPath.addAll(t);
-                        if (l == Math.max(Math.abs(node.x - map.getChest().x), Math.abs(node.y - map.getChest().y))) {
+                        if (l == Math.max(Math.abs(node.x - dest.x), Math.abs(node.y - dest.y))) {
                             x = 9;
                             break;
                         }
@@ -116,6 +132,7 @@ public class Algorithms {
         minPath.push(node);
         return minPath;
     }
+
     private void displayResult(Stack<Node> path, Map map, PrintWriter writer) {
         Stack<Node> t = new Stack<>();
         t.addAll(path);
