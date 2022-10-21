@@ -1,9 +1,10 @@
 public class AStarNode implements Comparable<AStarNode>{
-    private Node node;
+    private final Node node;
     private int f;
     private int g;
     private int h;
     private AStarNode parent;
+    private boolean wasKraken;
 
     public AStarNode(Node node) {
         this.node = node;
@@ -23,19 +24,18 @@ public class AStarNode implements Comparable<AStarNode>{
         computeF();
     }
 
-    public boolean isShorterPath(AStarNode node) {
-        int g = node.g + 1;
-        if (g < this.g) {
-            setData(node);
-            return true;
-        }
-        return false;
-    }
-
     @Override
     public boolean equals(Object o) {
         AStarNode node = (AStarNode) o;
         return this.getNode().x == node.getNode().x && this.getNode().y == node.getNode().y;
+    }
+
+    public void setWasKraken(boolean kraken) {
+        wasKraken = kraken;
+    }
+
+    public boolean isWasKraken() {
+        return wasKraken;
     }
 
     public int getF() {

@@ -105,6 +105,7 @@ public class AStar {
                             continue;
                         if (myMap[x][y].getNode().kraken && tortuga) {
                             map.disableKraken();
+                            myMap[x][y].setWasKraken(true);
                         }
                         if (myMap[x][y].getNode().enemy) {
                             continue;
@@ -115,6 +116,10 @@ public class AStar {
                     }
                 }
                 closedSet.add(curNode);
+                if (curNode.isWasKraken()) {
+                    map.activateKraken();
+                    curNode.setWasKraken(false);
+                }
             }
         }
         return new ArrayList<>();
