@@ -18,7 +18,6 @@ public class Backtracking {
     }
 
     public void compute() {
-        map.displayMap();
         Set<Node> visited = new HashSet<>();
         Stack<Node> pathWithoutTortuga = traverse(visited, map.getJack(), map, map.getChest(), false);
         int pathLengthWithoutTortuga = pathWithoutTortuga.size() - 1;
