@@ -1,12 +1,14 @@
 import java.io.PrintWriter;
 import java.util.*;
 
-public class Algorithms {
-    Stack<Node> pathBacktracking;
-    int[][] minPathLengthArray;
+public class Backtracking {
+    private final int[][] minPathLengthArray;
+    private final PrintWriter writer;
+    private final Map map;
 
-    public Algorithms() {
-        pathBacktracking = new Stack<>();
+    public Backtracking(Map map, PrintWriter writer) {
+        this.map = map;
+        this.writer = writer;
         minPathLengthArray = new int[9][9];
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 9; j++) {
@@ -15,10 +17,9 @@ public class Algorithms {
         }
     }
 
-    public void backtracking(Map map, PrintWriter backtrackingWriter) {
+    public void compute() {
         map.displayMap();
         Set<Node> visited = new HashSet<>();
-        pathBacktracking.push(map.getNode(0, 0));
         Stack<Node> pathWithoutTortuga = traverse(visited, map.getJack(), map, map.getChest(), false);
         int pathLengthWithoutTortuga = pathWithoutTortuga.size() - 1;
         System.out.println("Algorithm without tortuga is finished");
@@ -45,17 +46,16 @@ public class Algorithms {
             }
         }
         if (Math.min(pathLengthWithoutTortuga, pathLengthWithTortuga) >= 80) {
-            backtrackingWriter.println("Lose");
-            backtrackingWriter.close();
+            writer.println("Lose");
             return;
         }
-        backtrackingWriter.println("Win");
+        writer.println("Win");
         if (pathLengthWithoutTortuga <= pathLengthWithTortuga) {
-            backtrackingWriter.println(pathLengthWithoutTortuga);
-            displayResult(pathWithoutTortuga, map, backtrackingWriter);
+            writer.println(pathLengthWithoutTortuga);
+            displayResult(pathWithoutTortuga);
         } else {
-            backtrackingWriter.println(pathLengthWithTortuga);
-            displayResult(pathWithTortuga, map, backtrackingWriter);
+            writer.println(pathLengthWithTortuga);
+            displayResult(pathWithTortuga);
         }
     }
 
@@ -123,7 +123,7 @@ public class Algorithms {
         return minPath;
     }
 
-    private void displayResult(Stack<Node> path, Map map, PrintWriter writer) {
+    private void displayResult(Stack<Node> path) {
         Stack<Node> t = new Stack<>();
         t.addAll(path);
         while (!t.isEmpty()) {
@@ -148,47 +148,5 @@ public class Algorithms {
             writer.println();
         }
         writer.println("-------------------");
-    }
-//    private int traverse(Set<Node> visited, Node node, Map map, Node dest, boolean tortuga) {
-//        if (node == dest) {
-//            return 0;
-//        }
-//        if (node.rock) {
-//            return Integer.MAX_VALUE;
-//        }
-//        if (tortuga && node.kraken) {
-//            map.disableKraken();
-//        }
-//        if (node.enemy) {
-//            return Integer.MAX_VALUE;
-//        }
-//        visited.add(node);
-//        int min = Integer.MAX_VALUE;
-//        int minX = 9, minY = 9;
-//        for (int x = Math.max(0, node.x - 1); x <= Math.min(8, node.x + 1); x++) {
-//            for (int y = Math.max(0, node.y - 1); y <= Math.min(8, node.y + 1); y++) {
-//                if (!visited.contains(map.getNode(x, y))) {
-//                    int t = traverse(visited, map.getNode(x, y), map, dest, tortuga);
-//                    if (t < min) {
-//                        min = t;
-//                        minX = x;
-//                        minY = y;
-//                    }
-//
-//                }
-//            }
-//        }
-//        if (minX < 9) pathBacktracking.push(map.getNode(minX, minY));
-//        return min;
-//    }
-
-    public void aStar(Map map, PrintWriter aStarWriter) {
-        PriorityQueue<Node> openList = new PriorityQueue<>();
-        Set<Node> closedSet = new HashSet<>();
-        Node initialNode = map.getNode(0, 0);
-        Node finalNode = map.getChest();
-        Node middleNode = map.getTortuga();
-        int hvdCost = 1;
-
     }
 }

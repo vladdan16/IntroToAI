@@ -63,16 +63,17 @@ public class Main {
         // Now, we can perform our algorithms
         // Backtracking
         PrintWriter backtrackingWriter = new PrintWriter("outputBacktracking.txt");
-        PrintWriter aStarWriter = new PrintWriter("outputAStar.txt");
-        Algorithms algorithms = new Algorithms();
+        Backtracking backtracking = new Backtracking(map, backtrackingWriter);
         long start = System.currentTimeMillis();
-        algorithms.backtracking(map, backtrackingWriter);
+        backtracking.compute();
         long end = System.currentTimeMillis();
         backtrackingWriter.printf("%d ms\n", end - start);
         backtrackingWriter.close();
         System.out.println("Backtracking algorithm is finished successfully. Execution time: " + (end - start) + "ms");
+        PrintWriter aStarWriter = new PrintWriter("outputAStar.txt");
+        AStar aStar = new AStar(map, aStarWriter);
         start = System.currentTimeMillis();
-        algorithms.aStar(map, aStarWriter);
+        aStar.compute();
         end = System.currentTimeMillis();
         aStarWriter.printf("%d ms\n", end - start);
         aStarWriter.close();
