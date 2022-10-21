@@ -2,12 +2,11 @@ import java.io.PrintWriter;
 import java.util.*;
 
 public class AStar {
-    private Map map;
-    private AStarNode[][] myMap;
+    private final Map map;
+    private final AStarNode[][] myMap;
     private final PrintWriter writer;
-    private PriorityQueue<AStarNode> queue;
-    private Set<AStarNode> closedSet;
-    private AStarNode initialNode;
+    private final PriorityQueue<AStarNode> queue;
+    private final Set<AStarNode> closedSet;
     private AStarNode dest;
     private boolean tortuga;
 
@@ -17,6 +16,7 @@ public class AStar {
         this.map = map;
         this.writer = writer;
         myMap = new AStarNode[9][];
+        tortuga = false;
         for (int i = 0; i < 9; i++) {
             myMap[i] = new AStarNode[9];
             for (int j = 0; j < 9; j++) {
@@ -26,7 +26,7 @@ public class AStar {
     }
 
     public void compute() {
-        initialNode = myMap[map.getJack().x][map.getJack().y];
+        AStarNode initialNode = myMap[map.getJack().x][map.getJack().y];
         initialNode.setG(0);
         dest = myMap[map.getChest().x][map.getChest().y];
         initialNode.calculateH(dest);
@@ -61,9 +61,11 @@ public class AStar {
                 initialNode = myMap[map.getTortuga().x][map.getTortuga().y];
                 dest = myMap[map.getChest().x][map.getChest().y];
                 initialNode.calculateH(dest);
+                initialNode.setG(0);
                 queue.clear();
                 queue.add(initialNode);
                 closedSet.clear();
+                tortuga = true;
                 List<AStarNode> t = findPath();
                 pathWithTortuga.addAll(t.subList(1, t.size()));
                 pathLengthWithTortuga = pathWithTortuga.size() - 1;
@@ -101,6 +103,12 @@ public class AStar {
                             continue;
                         if (closedSet.contains(myMap[x][y]) && myMap[x][y].getG() < curNode.getG() + 1)
                             continue;
+                        if (myMap[x][y].getNode().kraken && tortuga) {
+                            map.disableKraken();
+                        }
+                        if (myMap[x][y].getNode().enemy) {
+                            continue;
+                        }
                         myMap[x][y].setData(curNode);
                         myMap[x][y].calculateH(dest);
                         queue.add(myMap[x][y]);
