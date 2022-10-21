@@ -62,6 +62,7 @@ public class Main {
         }
         // Now, we can perform our algorithms
         // Backtracking
+        map.displayMap();
         PrintWriter backtrackingWriter = new PrintWriter("outputBacktracking.txt");
         Backtracking backtracking = new Backtracking(map, backtrackingWriter);
         long start = System.currentTimeMillis();
