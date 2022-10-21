@@ -3,12 +3,10 @@ import java.util.*;
 
 public class Algorithms {
     Stack<Node> pathBacktracking;
-    int minPathLength;
     int[][] minPathLengthArray;
 
     public Algorithms() {
         pathBacktracking = new Stack<>();
-        minPathLength = 99;
         minPathLengthArray = new int[9][9];
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 9; j++) {
@@ -20,19 +18,26 @@ public class Algorithms {
     public void backtracking(Map map, PrintWriter backtrackingWriter) {
         map.displayMap();
         Set<Node> visited = new HashSet<>();
-        minPathLength = 99;
         pathBacktracking.push(map.getNode(0, 0));
         Stack<Node> pathWithoutTortuga = traverse(visited, map.getJack(), map, map.getChest(), false);
         int pathLengthWithoutTortuga = pathWithoutTortuga.size() - 1;
-        minPathLength = 99;
         System.out.println("Algorithm without tortuga is finished");
         int pathLengthWithTortuga = 81;
         Stack<Node> pathWithTortuga = new Stack<>();
         if (pathLengthWithoutTortuga > Math.max(Math.abs(map.getJack().x - map.getTortuga().x), Math.abs(map.getJack().y - map.getTortuga().y)) + Math.max(Math.abs(map.getTortuga().x - map.getChest().x), Math.abs(map.getTortuga().y - map.getChest().y))) {
+            for (int i = 0; i < 9; i++) {
+                for (int j = 0; j < 9; j++) {
+                    minPathLengthArray[i][j] = 81;
+                }
+            }
             pathWithTortuga = traverse(visited, map.getJack(), map, map.getTortuga(), false);
             pathLengthWithTortuga = pathWithTortuga.size() - 1;
             if (pathLengthWithTortuga < pathLengthWithoutTortuga) {
-                minPathLength = 99;
+                for (int i = 0; i < 9; i++) {
+                    for (int j = 0; j < 9; j++) {
+                        minPathLengthArray[i][j] = 81;
+                    }
+                }
                 Stack<Node> pathAfterTortuga = traverse(visited, map.getTortuga(), map, map.getChest(), true);
                 pathAfterTortuga.pop();
                 pathWithTortuga.addAll(pathAfterTortuga);
@@ -58,7 +63,6 @@ public class Algorithms {
         if (node == dest) {
             Stack<Node> t = new Stack<>();
             t.push(node);
-            minPathLength = Math.min(minPathLength, visited.size());
             minPathLengthArray[node.x][node.y] = visited.size();
             return t;
         }
@@ -79,14 +83,15 @@ public class Algorithms {
             }
             return t;
         }
-        if (visited.size() >= minPathLength) {
+        if (visited.size() < minPathLengthArray[node.x][node.y]) {
+            minPathLengthArray[node.x][node.y] = visited.size();
+        } else {
             Stack<Node> t = new Stack<>();
             for (int i = 0; i < 9 * 9; i++) {
                 t.push(new Node(0, 0));
             }
             return t;
         }
-        //visited.add(node);
         Set<Node> curVisited = new HashSet<>(visited);
         curVisited.add(node);
 
@@ -98,22 +103,8 @@ public class Algorithms {
         for (int x = Math.max(0, node.x - 1); x <= Math.min(8, node.x + 1); x++) {
             for (int y = Math.max(0, node.y - 1); y <= Math.min(8, node.y + 1); y++) {
                 if (!curVisited.contains(map.getNode(x, y))) {
-                    if (minPathLengthArray[x][y] < visited.size() + Math.max(Math.abs(node.x - dest.x), Math.abs(node.y - dest.y)))
-                        continue;
-                    if (Math.max(Math.abs(x - dest.x), Math.abs(y - dest.y)) > Math.max(Math.abs(node.x - dest.x), Math.abs(node.y - dest.y)))
-                        continue;
-                    else if (Math.max(Math.abs(x - dest.x), Math.abs(y - dest.y)) == Math.max(Math.abs(node.x - dest.x), Math.abs(node.y - dest.y))) {
-                        if (x == node.x) {
-                            if (Math.abs(y - dest.y) > Math.abs(node.y - dest.y))
-                                continue;
-                        } else if (y == node.y) {
-                            if (Math.abs(x - dest.x) > Math.abs(node.x - dest.x))
-                                continue;
-                        }
-                    }
                     Stack<Node> t = traverse(curVisited, map.getNode(x, y), map, dest, tortuga);
                     int l = t.size();
-                    minPathLengthArray[node.x][node.y] = Math.min(minPathLengthArray[node.x][node.y], l + visited.size());
                     if (l < min) {
                         min = l;
                         minPath.clear();
@@ -128,7 +119,6 @@ public class Algorithms {
         }
         if (tortuga && node.kraken)
             map.activateKraken();
-        //visited.addAll(curVisited);
         minPath.push(node);
         return minPath;
     }
