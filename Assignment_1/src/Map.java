@@ -55,6 +55,7 @@ class Map {
     }
     public void activateKraken() {
         setEnemyPerceptionZone(a[2], 2);
+        map[a[2][0]][a[2][1]].enemy = true;
     }
     public void generateObjects() {
         int[] coordinates;

@@ -38,11 +38,7 @@ public class AStar {
         List<AStarNode> pathWithTortuga = new ArrayList<>();
         int pathLengthWithTortuga = 81;
         if (pathLengthWithoutTortuga > Math.max(Math.abs(map.getJack().x - map.getTortuga().x), Math.abs(map.getJack().y - map.getTortuga().y)) + Math.max(Math.abs(map.getTortuga().x - map.getChest().x), Math.abs(map.getTortuga().y - map.getChest().y))) {
-            for (int i = 0; i < 9; i++) {
-                for (int j = 0; j < 9; j++) {
-                    myMap[i][j] = new AStarNode(map.getNode(i, j));
-                }
-            }
+            clearMyMap();
             dest = myMap[map.getTortuga().x][map.getTortuga().y];
             initialNode.calculateH(dest);
             queue.clear();
@@ -53,11 +49,7 @@ public class AStar {
             if (pathLengthWithTortuga == -1)
                 pathLengthWithTortuga = 81;
             if (pathLengthWithTortuga < pathLengthWithoutTortuga) {
-                for (int i = 0; i < 9; i++) {
-                    for (int j = 0; j < 9; j++) {
-                        myMap[i][j] = new AStarNode(map.getNode(i, j));
-                    }
-                }
+                clearMyMap();
                 initialNode = myMap[map.getTortuga().x][map.getTortuga().y];
                 dest = myMap[map.getChest().x][map.getChest().y];
                 initialNode.calculateH(dest);
@@ -88,11 +80,18 @@ public class AStar {
     }
 
     private List<AStarNode> findPath() {
+        map.activateKraken();
         while (!queue.isEmpty()) {
             AStarNode curNode = queue.poll();
+
             if (curNode == dest) {
                 return getPath(curNode);
-            } else {
+            }
+            else {
+                if (tortuga && isKrakenNear(curNode) || curNode.isWasKraken()) {
+                    map.disableKraken();
+                    curNode.setWasKraken(true);
+                }
                 for (int x = Math.max(0, curNode.getNode().x - 1); x <= Math.min(8, curNode.getNode().x + 1); x++) {
                     for (int y = Math.max(0, curNode.getNode().y - 1); y <= Math.min(8, curNode.getNode().y + 1); y++) {
                         if (myMap[x][y].equals(curNode))
@@ -103,9 +102,10 @@ public class AStar {
                             continue;
                         if (closedSet.contains(myMap[x][y]) && myMap[x][y].getG() < curNode.getG() + 1)
                             continue;
-                        if (myMap[x][y].getNode().kraken && tortuga) {
+                        if (myMap[x][y].getNode().kraken && myMap[x][y].getNode().enemy && tortuga) {
+                            //disableKraken(x, y);
                             map.disableKraken();
-                            myMap[x][y].setWasKraken(true);
+                            myMap[x][y].setWasKraken(curNode.isWasKraken());
                         }
                         if (myMap[x][y].getNode().enemy) {
                             continue;
@@ -118,6 +118,7 @@ public class AStar {
                 closedSet.add(curNode);
                 if (curNode.isWasKraken()) {
                     map.activateKraken();
+                    //activateKraken(curNode.getNode().x, curNode.getNode().y);
                     curNode.setWasKraken(false);
                 }
             }
@@ -134,6 +135,27 @@ public class AStar {
             node = parent;
         }
         return path;
+    }
+
+    private boolean isKrakenNear(AStarNode curNode) {
+        boolean t = false;
+        for (int i = Math.max(0, curNode.getNode().x - 1); i <= Math.min(8, curNode.getNode().x + 1); i++) {
+            for (int j = Math.max(0, curNode.getNode().y - 1); j <= Math.min(8, curNode.getNode().y + 1); j++) {
+                if (myMap[i][j].getNode().kraken && i != curNode.getNode().x && j != curNode.getNode().y) {
+                    t = true;
+                    break;
+                }
+            }
+        }
+        return t;
+    }
+
+    private void clearMyMap() {
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
+                myMap[i][j] = new AStarNode(map.getNode(i, j));
+            }
+        }
     }
 
     private void displayResult(List<AStarNode> path) {
