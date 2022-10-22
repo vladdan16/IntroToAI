@@ -1,20 +1,17 @@
 import java.io.PrintWriter;
 import java.util.*;
 
-public class AStar {
-    private final Map map;
+public class AStar extends Algorithm{
     private final AStarNode[][] myMap;
-    private final PrintWriter writer;
     private final PriorityQueue<AStarNode> queue;
     private final Set<AStarNode> closedSet;
     private AStarNode dest;
     private boolean tortuga;
 
     public AStar(Map map, PrintWriter writer) {
+        super(map, writer);
         queue = new PriorityQueue<>();
         closedSet = new HashSet<>();
-        this.map = map;
-        this.writer = writer;
         myMap = new AStarNode[9][];
         tortuga = false;
         for (int i = 0; i < 9; i++) {

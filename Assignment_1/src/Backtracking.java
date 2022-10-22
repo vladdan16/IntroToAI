@@ -1,20 +1,13 @@
 import java.io.PrintWriter;
 import java.util.*;
 
-public class Backtracking {
+public class Backtracking extends Algorithm{
     private final int[][] minPathLengthArray;
-    private final PrintWriter writer;
-    private final Map map;
 
     public Backtracking(Map map, PrintWriter writer) {
-        this.map = map;
-        this.writer = writer;
+        super(map, writer);
         minPathLengthArray = new int[9][9];
-        for (int i = 0; i < 9; i++) {
-            for (int j = 0; j < 9; j++) {
-                minPathLengthArray[i][j] = 81;
-            }
-        }
+        setMinPathLengthArray();
     }
 
     public void compute() {
@@ -25,19 +18,11 @@ public class Backtracking {
         int pathLengthWithTortuga = 81;
         Stack<Node> pathWithTortuga = new Stack<>();
         if (pathLengthWithoutTortuga > Math.max(Math.abs(map.getJack().x - map.getTortuga().x), Math.abs(map.getJack().y - map.getTortuga().y)) + Math.max(Math.abs(map.getTortuga().x - map.getChest().x), Math.abs(map.getTortuga().y - map.getChest().y))) {
-            for (int i = 0; i < 9; i++) {
-                for (int j = 0; j < 9; j++) {
-                    minPathLengthArray[i][j] = 81;
-                }
-            }
+            setMinPathLengthArray();
             pathWithTortuga = traverse(visited, map.getJack(), map, map.getTortuga(), false);
             pathLengthWithTortuga = pathWithTortuga.size() - 1;
             if (pathLengthWithTortuga < pathLengthWithoutTortuga) {
-                for (int i = 0; i < 9; i++) {
-                    for (int j = 0; j < 9; j++) {
-                        minPathLengthArray[i][j] = 81;
-                    }
-                }
+                setMinPathLengthArray();
                 Stack<Node> pathAfterTortuga = traverse(visited, map.getTortuga(), map, map.getChest(), true);
                 pathAfterTortuga.pop();
                 pathWithTortuga.addAll(pathAfterTortuga);
@@ -55,6 +40,14 @@ public class Backtracking {
         } else {
             writer.println(pathLengthWithTortuga);
             displayResult(pathWithTortuga);
+        }
+    }
+
+    private void setMinPathLengthArray() {
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
+                minPathLengthArray[i][j] = 81;
+            }
         }
     }
 

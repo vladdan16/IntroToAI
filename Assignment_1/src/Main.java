@@ -5,14 +5,49 @@ import java.io.PrintWriter;
 import java.util.Scanner;
 
 public class Main {
+    static PrintWriter consoleWriter;
+    static Scanner consoleScanner;
+    static Map map;
     public static void main(String[] args) throws FileNotFoundException {
-        PrintWriter consoleWriter = new PrintWriter(System.out);
-        Scanner consoleScanner = new Scanner(System.in);
+        consoleWriter = new PrintWriter(System.out);
+        consoleScanner = new Scanner(System.in);
+        runProgram();
+    }
+
+    private static void runProgram() throws FileNotFoundException {
+        map = new Map();
+
+        // Get input by type that user prefer
+        readInput();
+        // Now, we can perform our algorithms
+        map.displayMap(); // Displaying map to console
+
+        // Starting perform Backtracking
+        PrintWriter backtrackingWriter = new PrintWriter("outputBacktracking.txt");
+        Algorithm backtracking = new Backtracking(map, backtrackingWriter);
+        long start = System.currentTimeMillis();
+        backtracking.compute();
+        long end = System.currentTimeMillis();
+        backtrackingWriter.printf("%d ms\n", end - start);
+        backtrackingWriter.close();
+        System.out.println("Backtracking algorithm is finished successfully. Execution time: " + (end - start) + "ms");
+
+        //Starting perform AStar
+        PrintWriter aStarWriter = new PrintWriter("outputAStar.txt");
+        Algorithm aStar = new AStar(map, aStarWriter);
+        start = System.currentTimeMillis();
+        aStar.compute();
+        end = System.currentTimeMillis();
+        aStarWriter.printf("%d ms\n", end - start);
+        aStarWriter.close();
+        System.out.println("A* algorithm is finished successfully. Execution time: " + (end - start) + "ms");
+    }
+
+    private static void readInput() {
         consoleWriter.println("Choose an input type:");
         consoleWriter.println("1. Generate the map and manually insert perception scenario from console");
         consoleWriter.println("2. Insert the positions of agents and perception scenario from the input.txt");
         consoleWriter.flush();
-        Map map = new Map();
         while (true) {
             int inputType = consoleScanner.nextInt();
             if (inputType == 2) {
@@ -60,25 +95,6 @@ public class Main {
                 consoleWriter.flush();
             }
         }
-        // Now, we can perform our algorithms
-        // Backtracking
-        map.displayMap();
-        PrintWriter backtrackingWriter = new PrintWriter("outputBacktracking.txt");
-        Backtracking backtracking = new Backtracking(map, backtrackingWriter);
-        long start = System.currentTimeMillis();
-        backtracking.compute();
-        long end = System.currentTimeMillis();
-        backtrackingWriter.printf("%d ms\n", end - start);
-        backtrackingWriter.close();
-        System.out.println("Backtracking algorithm is finished successfully. Execution time: " + (end - start) + "ms");
-        PrintWriter aStarWriter = new PrintWriter("outputAStar.txt");
-        AStar aStar = new AStar(map, aStarWriter);
-        start = System.currentTimeMillis();
-        aStar.compute();
-        end = System.currentTimeMillis();
-        aStarWriter.printf("%d ms\n", end - start);
-        aStarWriter.close();
-        System.out.println("A* algorithm is finished successfully. Execution time: " + (end - start) + "ms");
     }
 }
 
