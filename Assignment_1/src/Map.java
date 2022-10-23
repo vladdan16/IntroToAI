@@ -58,6 +58,8 @@ class Map {
         map[a[2][0]][a[2][1]].enemy = true;
     }
     public void generateObjects() {
+        a = new int[6][2];
+        a[0][0] = 0; a[0][1] = 0;
         int[] coordinates;
         boolean ok = false;
         map[0][0].jack = true;
@@ -68,6 +70,7 @@ class Map {
                 map[coordinates[0]][coordinates[1]].davy = true;
                 setEnemyPerceptionZone(coordinates, 1);
                 ok = true;
+                a[1] = coordinates;
             }
         }
         ok = false;
@@ -78,6 +81,7 @@ class Map {
                 kraken = map[coordinates[0]][coordinates[1]];
                 setEnemyPerceptionZone(coordinates, 2);
                 ok = true;
+                a[2] = coordinates;
             }
         }
         ok = false;
@@ -87,6 +91,7 @@ class Map {
                 map[coordinates[0]][coordinates[1]].rock = true;
                 map[coordinates[0]][coordinates[1]].enemy = true;
                 ok = true;
+                a[3] = coordinates;
             }
         }
         ok = false;
@@ -96,6 +101,7 @@ class Map {
                 map[coordinates[0]][coordinates[1]].chest = true;
                 ok = true;
                 chest = map[coordinates[0]][coordinates[1]];
+                a[4] = coordinates;
             }
         }
         ok = false;
@@ -105,6 +111,7 @@ class Map {
                 map[coordinates[0]][coordinates[1]].tortuga = true;
                 ok = true;
                 tortuga = map[coordinates[0]][coordinates[1]];
+                a[5] = coordinates;
             }
         }
     }

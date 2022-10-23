@@ -9,5 +9,5 @@ public abstract class Algorithm {
         this.map = map;
     }
 
-    public abstract void compute();
+    public abstract String compute();
 }

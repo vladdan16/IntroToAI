@@ -22,7 +22,7 @@ public class AStar extends Algorithm{
         }
     }
 
-    public void compute() {
+    public String compute() {
         AStarNode initialNode = myMap[map.getJack().x][map.getJack().y];
         initialNode.setG(0);
         dest = myMap[map.getChest().x][map.getChest().y];
@@ -64,7 +64,7 @@ public class AStar extends Algorithm{
         }
         if (Math.min(pathLengthWithoutTortuga, pathLengthWithTortuga) > 80) {
             writer.println("Lose");
-            return;
+            return "L";
         }
         writer.println("Win");
         if (pathLengthWithoutTortuga <= pathLengthWithTortuga) {
@@ -74,6 +74,7 @@ public class AStar extends Algorithm{
             writer.println(pathLengthWithTortuga);
             displayResult(pathWithTortuga);
         }
+        return "W";
     }
 
     private List<AStarNode> findPath() {
