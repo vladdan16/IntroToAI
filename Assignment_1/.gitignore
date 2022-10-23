@@ -1,0 +1,7 @@
+*.class
+*.html
+*.py
+*.xml
+.idea/
+out/
+JavaDoc/
