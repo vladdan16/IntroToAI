@@ -12,6 +12,8 @@ public class Main {
         consoleWriter = new PrintWriter(System.out);
         consoleScanner = new Scanner(System.in);
         runProgram();
+        consoleWriter.close();
+        consoleScanner.close();
     }
 
     private static void runProgram() throws FileNotFoundException {
@@ -30,7 +32,7 @@ public class Main {
         long end = System.currentTimeMillis();
         backtrackingWriter.printf("%d ms\n", end - start);
         backtrackingWriter.close();
-        System.out.println("Backtracking algorithm is finished successfully. Execution time: " + (end - start) + "ms");
+        consoleWriter.println("Backtracking algorithm is finished successfully. Execution time: " + (end - start) + "ms");
 
         //Starting perform AStar
         PrintWriter aStarWriter = new PrintWriter("outputAStar.txt");
@@ -40,7 +42,9 @@ public class Main {
         end = System.currentTimeMillis();
         aStarWriter.printf("%d ms\n", end - start);
         aStarWriter.close();
-        System.out.println("A* algorithm is finished successfully. Execution time: " + (end - start) + "ms");
+        consoleWriter.println("A* algorithm is finished successfully. Execution time: " + (end - start) + "ms");
+
+        consoleWriter.flush();
     }
 
     private static void readInput() {
