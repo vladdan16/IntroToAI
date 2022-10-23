@@ -19,11 +19,11 @@ public class Backtracking extends Algorithm {
         setMinPathLengthArray();
     }
 
-    public void compute() {
+    public String compute() {
         Set<Node> visited = new HashSet<>();
         Stack<Node> pathWithoutTortuga = traverse(visited, map.getJack(), map, map.getChest(), false);
         int pathLengthWithoutTortuga = pathWithoutTortuga.size() - 1;
-        System.out.println("Algorithm without tortuga is finished");
+        //System.out.println("Algorithm without tortuga is finished");
         int pathLengthWithTortuga = 81;
         Stack<Node> pathWithTortuga = new Stack<>();
         if (pathLengthWithoutTortuga > Math.max(Math.abs(map.getJack().getX() - map.getTortuga().getX()), Math.abs(map.getJack().getY() - map.getTortuga().getY())) + Math.max(Math.abs(map.getTortuga().getX() - map.getChest().getX()), Math.abs(map.getTortuga().getY() - map.getChest().getY()))) {
@@ -40,7 +40,7 @@ public class Backtracking extends Algorithm {
         }
         if (Math.min(pathLengthWithoutTortuga, pathLengthWithTortuga) >= 80) {
             writer.println("Lose");
-            return;
+            return "L";
         }
         writer.println("Win");
         if (pathLengthWithoutTortuga <= pathLengthWithTortuga) {
@@ -50,6 +50,7 @@ public class Backtracking extends Algorithm {
             writer.println(pathLengthWithTortuga);
             displayResult(pathWithTortuga);
         }
+        return "W";
     }
 
     private void setMinPathLengthArray() {

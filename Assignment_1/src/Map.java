@@ -27,6 +27,17 @@ class Map {
     }
 
     /**
+     * Method to clear map
+     */
+    public void clear() {
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
+                map[i][j] = new Node(i, j);
+            }
+        }
+    }
+
+    /**
      * Method to set Objects on map from given array
      * @param a 2-d array with coordinates of objects
      * @return boolean value: true if operation was ended successful, false otherwise

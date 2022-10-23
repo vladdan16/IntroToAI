@@ -27,6 +27,7 @@ public abstract class Algorithm {
 
     /**
      * A public method to start performing algorithm
+     * @return String value: L (Lose) or W (Win)
      */
-    public abstract void compute();
+    public abstract String compute();
 }
