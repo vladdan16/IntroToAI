@@ -179,6 +179,14 @@ class Map {
     }
 
     /**
+     * Getter for perception type
+     * @return int perception type value
+     */
+    public int getPerceptionType() {
+        return perceptionType;
+    }
+
+    /**
      * A method to get tortuga node instance
      * @return Node instance
      */

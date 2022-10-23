@@ -87,12 +87,12 @@ public class AStar extends Algorithm{
         map.activateKraken();
         while (!queue.isEmpty()) {
             AStarNode curNode = queue.poll();
-
             if (curNode == dest) {
                 return getPath(curNode);
             }
             else {
-                if (tortuga && isKrakenNear(curNode) || curNode.isWasKraken()) {
+                boolean tt = isKrakenNear(curNode);
+                if (tortuga && tt || curNode.isWasKraken()) {
                     map.disableKraken();
                     curNode.setWasKraken(true);
                 }
@@ -100,34 +100,62 @@ public class AStar extends Algorithm{
                     for (int y = Math.max(0, curNode.getNode().getY() - 1); y <= Math.min(8, curNode.getNode().getY() + 1); y++) {
                         if (myMap[x][y].equals(curNode))
                             continue;
-                        if (!(myMap[x][y].getG() > curNode.getG() + 1))
+                        addChild(curNode, x, y, 1, null);
+                    }
+                }
+                if (map.getPerceptionType() == 2) {
+                    int[][] offset = {
+                            {0, 2},
+                            {2, 0},
+                            {0, -2},
+                            {-2, 0},
+                    };
+                    for (int i = 0; i < 4; i++) {
+                        int x = curNode.getNode().getX() + offset[i][0];
+                        int y = curNode.getNode().getY() + offset[i][1];
+                        int xt = x - offset[i][0] / 2;
+                        int yt = y - offset[i][1] / 2;
+                        if (x < 0 || x > 8 || y < 0 || y > 8)
                             continue;
-                        if (queue.contains(myMap[x][y]) && myMap[x][y].getG() < curNode.getG() + 1)
+                        if (myMap[xt][yt].getNode().isEnemy())
                             continue;
-                        if (closedSet.contains(myMap[x][y]) && myMap[x][y].getG() < curNode.getG() + 1)
-                            continue;
-                        if (myMap[x][y].getNode().isKraken() && myMap[x][y].getNode().isEnemy() && tortuga) {
-                            //disableKraken(x, y);
-                            map.disableKraken();
-                            myMap[x][y].setWasKraken(curNode.isWasKraken());
-                        }
-                        if (myMap[x][y].getNode().isEnemy()) {
-                            continue;
-                        }
-                        myMap[x][y].setData(curNode);
-                        myMap[x][y].calculateH(dest);
-                        queue.add(myMap[x][y]);
+                        addChild(curNode, x, y, 2, myMap[xt][yt]);
                     }
                 }
                 closedSet.add(curNode);
                 if (curNode.isWasKraken()) {
                     map.activateKraken();
-                    //activateKraken(curNode.getNode().x, curNode.getNode().y);
-                    curNode.setWasKraken(false);
                 }
             }
         }
         return new ArrayList<>();
+    }
+
+    private void addChild(AStarNode curNode, int x, int y, int cost, AStarNode pr) {
+        if (!(myMap[x][y].getG() > curNode.getG() + 1))
+            return;
+        if (cost == 2) {
+            pr.setData(curNode);
+            pr.calculateH(dest);
+            myMap[x][y].setData(pr);
+        } else {
+            myMap[x][y].setData(curNode);
+        }
+        myMap[x][y].calculateH(dest);
+        int f = myMap[x][y].getH() + curNode.getG() + cost;
+        if (queue.contains(myMap[x][y]) && myMap[x][y].getF() < f)
+            return;
+        if (closedSet.contains(myMap[x][y]) && myMap[x][y].getF() < f)
+            return;
+        if (myMap[x][y].getNode().isKraken() && myMap[x][y].getNode().isEnemy() && tortuga) {
+            map.disableKraken();
+        }
+        if (myMap[x][y].getNode().isEnemy()) {
+            return;
+        }
+        myMap[x][y].setWasKraken(curNode.isWasKraken());
+        queue.add(myMap[x][y]);
+        //displayMap();
     }
 
     private List<AStarNode> getPath(AStarNode node) {
@@ -184,5 +212,18 @@ public class AStar extends Algorithm{
             writer.println();
         }
         writer.println("-------------------");
+    }
+
+    /**
+     * A method for displaying map of f values for debugging
+     */
+    private void displayMap() {
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
+                System.out.printf("%d ", myMap[i][j].getF());
+            }
+            System.out.println();
+        }
+        System.out.println();
     }
 }

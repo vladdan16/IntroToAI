@@ -76,6 +76,22 @@ public class AStarNode implements Comparable<AStarNode>{
     }
 
     /**
+     * Getter for h value
+     * @return int h value
+     */
+    public int getH() {
+        return h;
+    }
+
+    /**
+     * Getter for f value
+     * @return int f value
+     */
+    public int getF() {
+        return f;
+    }
+
+    /**
      * Setter for g value
      * We set value of g and recompute value of f
      * @param g int g value
@@ -108,6 +124,7 @@ public class AStarNode implements Comparable<AStarNode>{
         } else if (this.f > o.f) {
             return 1;
         } else {
+            //return Integer.compare(this.h, o.h);
             return Integer.compare(o.h, this.h);
         }
     }
