@@ -1,23 +1,31 @@
 import java.io.PrintWriter;
 import java.util.*;
 
+/**
+ * Class for Backtracking algorithm that extends Algorithm
+ */
 public class Backtracking extends Algorithm{
     private final int[][] minPathLengthArray;
 
+    /**
+     * A public constructor for Backtracking algorithm
+     * @param map Map instance for algorithm
+     * @param writer Writer instance for output
+     */
     public Backtracking(Map map, PrintWriter writer) {
         super(map, writer);
         minPathLengthArray = new int[9][9];
         setMinPathLengthArray();
     }
 
-    public String compute() {
+    public void compute() {
         Set<Node> visited = new HashSet<>();
         Stack<Node> pathWithoutTortuga = traverse(visited, map.getJack(), map, map.getChest(), false);
         int pathLengthWithoutTortuga = pathWithoutTortuga.size() - 1;
         System.out.println("Algorithm without tortuga is finished");
         int pathLengthWithTortuga = 81;
         Stack<Node> pathWithTortuga = new Stack<>();
-        if (pathLengthWithoutTortuga > Math.max(Math.abs(map.getJack().x - map.getTortuga().x), Math.abs(map.getJack().y - map.getTortuga().y)) + Math.max(Math.abs(map.getTortuga().x - map.getChest().x), Math.abs(map.getTortuga().y - map.getChest().y))) {
+        if (pathLengthWithoutTortuga > Math.max(Math.abs(map.getJack().getX() - map.getTortuga().getX()), Math.abs(map.getJack().getY() - map.getTortuga().getY())) + Math.max(Math.abs(map.getTortuga().getX() - map.getChest().getX()), Math.abs(map.getTortuga().getY() - map.getChest().getY()))) {
             setMinPathLengthArray();
             pathWithTortuga = traverse(visited, map.getJack(), map, map.getTortuga(), false);
             pathLengthWithTortuga = pathWithTortuga.size() - 1;
@@ -31,7 +39,7 @@ public class Backtracking extends Algorithm{
         }
         if (Math.min(pathLengthWithoutTortuga, pathLengthWithTortuga) >= 80) {
             writer.println("Lose");
-            return "L";
+            return;
         }
         writer.println("Win");
         if (pathLengthWithoutTortuga <= pathLengthWithTortuga) {
@@ -41,7 +49,6 @@ public class Backtracking extends Algorithm{
             writer.println(pathLengthWithTortuga);
             displayResult(pathWithTortuga);
         }
-        return "W";
     }
 
     private void setMinPathLengthArray() {
@@ -56,28 +63,28 @@ public class Backtracking extends Algorithm{
         if (node == dest) {
             Stack<Node> t = new Stack<>();
             t.push(node);
-            minPathLengthArray[node.x][node.y] = visited.size();
+            minPathLengthArray[node.getX()][node.getY()] = visited.size();
             return t;
         }
-        if (node.rock) {
+        if (node.isRock()) {
             Stack<Node> t = new Stack<>();
             for (int i = 0; i < 9 * 9; i++) {
                 t.push(new Node(0, 0));
             }
             return t;
         }
-        if (tortuga && node.kraken) {
+        if (tortuga && node.isKraken()) {
             map.disableKraken();
         }
-        if (node.enemy) {
+        if (node.isEnemy()) {
             Stack<Node> t = new Stack<>();
             for (int i = 0; i < 9 * 9; i++) {
                 t.push(new Node(0, 0));
             }
             return t;
         }
-        if (visited.size() < minPathLengthArray[node.x][node.y]) {
-            minPathLengthArray[node.x][node.y] = visited.size();
+        if (visited.size() < minPathLengthArray[node.getX()][node.getY()]) {
+            minPathLengthArray[node.getX()][node.getY()] = visited.size();
         } else {
             Stack<Node> t = new Stack<>();
             for (int i = 0; i < 9 * 9; i++) {
@@ -93,8 +100,8 @@ public class Backtracking extends Algorithm{
         for (int i = 0; i < 9 * 9; i++) {
             minPath.push(new Node(0, 0));
         }
-        for (int x = Math.max(0, node.x - 1); x <= Math.min(8, node.x + 1); x++) {
-            for (int y = Math.max(0, node.y - 1); y <= Math.min(8, node.y + 1); y++) {
+        for (int x = Math.max(0, node.getX() - 1); x <= Math.min(8, node.getX() + 1); x++) {
+            for (int y = Math.max(0, node.getY() - 1); y <= Math.min(8, node.getY() + 1); y++) {
                 if (!curVisited.contains(map.getNode(x, y))) {
                     Stack<Node> t = traverse(curVisited, map.getNode(x, y), map, dest, tortuga);
                     int l = t.size();
@@ -102,7 +109,7 @@ public class Backtracking extends Algorithm{
                         min = l;
                         minPath.clear();
                         minPath.addAll(t);
-                        if (l == Math.max(Math.abs(node.x - dest.x), Math.abs(node.y - dest.y))) {
+                        if (l == Math.max(Math.abs(node.getX() - dest.getX()), Math.abs(node.getY() - dest.getY()))) {
                             x = 9;
                             break;
                         }
@@ -110,7 +117,7 @@ public class Backtracking extends Algorithm{
                 }
             }
         }
-        if (tortuga && node.kraken)
+        if (tortuga && node.isKraken())
             map.activateKraken();
         minPath.push(node);
         return minPath;
@@ -121,7 +128,7 @@ public class Backtracking extends Algorithm{
         t.addAll(path);
         while (!t.isEmpty()) {
             Node e = t.pop();
-            writer.printf("[%d,%d] ", e.x, e.y);
+            writer.printf("[%d,%d] ", e.getX(), e.getY());
         }
         writer.println();
         writer.println("-------------------");

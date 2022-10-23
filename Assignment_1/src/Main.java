@@ -4,10 +4,19 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.Scanner;
 
+/**
+ * Main class of program
+ */
 public class Main {
-    static PrintWriter consoleWriter;
-    static Scanner consoleScanner;
-    static Map map;
+    private static PrintWriter consoleWriter;
+    private static Scanner consoleScanner;
+    private static Map map;
+
+    /**
+     * An entry point of program
+     * @param args Array of String
+     * @throws FileNotFoundException if file was not found
+     */
     public static void main(String[] args) throws FileNotFoundException {
         consoleWriter = new PrintWriter(System.out);
         consoleScanner = new Scanner(System.in);

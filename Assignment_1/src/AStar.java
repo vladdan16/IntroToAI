@@ -1,6 +1,9 @@
 import java.io.PrintWriter;
 import java.util.*;
 
+/**
+ * A class for AStar algorithm that extends Algorithm
+ */
 public class AStar extends Algorithm{
     private final AStarNode[][] myMap;
     private final PriorityQueue<AStarNode> queue;
@@ -8,6 +11,11 @@ public class AStar extends Algorithm{
     private AStarNode dest;
     private boolean tortuga;
 
+    /**
+     * A public constructor for AStar algorithm
+     * @param map Map instance for algorithm
+     * @param writer Writer instance for output
+     */
     public AStar(Map map, PrintWriter writer) {
         super(map, writer);
         queue = new PriorityQueue<>();
@@ -21,11 +29,10 @@ public class AStar extends Algorithm{
             }
         }
     }
-
-    public String compute() {
-        AStarNode initialNode = myMap[map.getJack().x][map.getJack().y];
+    public void compute() {
+        AStarNode initialNode = myMap[map.getJack().getX()][map.getJack().getY()];
         initialNode.setG(0);
-        dest = myMap[map.getChest().x][map.getChest().y];
+        dest = myMap[map.getChest().getX()][map.getChest().getY()];
         initialNode.calculateH(dest);
         queue.add(initialNode);
         List<AStarNode> pathWithoutTortuga = findPath();
@@ -34,9 +41,9 @@ public class AStar extends Algorithm{
             pathLengthWithoutTortuga = 81;
         List<AStarNode> pathWithTortuga = new ArrayList<>();
         int pathLengthWithTortuga = 81;
-        if (pathLengthWithoutTortuga > Math.max(Math.abs(map.getJack().x - map.getTortuga().x), Math.abs(map.getJack().y - map.getTortuga().y)) + Math.max(Math.abs(map.getTortuga().x - map.getChest().x), Math.abs(map.getTortuga().y - map.getChest().y))) {
+        if (pathLengthWithoutTortuga > Math.max(Math.abs(map.getJack().getX() - map.getTortuga().getX()), Math.abs(map.getJack().getY() - map.getTortuga().getY())) + Math.max(Math.abs(map.getTortuga().getX() - map.getChest().getX()), Math.abs(map.getTortuga().getY() - map.getChest().getY()))) {
             clearMyMap();
-            dest = myMap[map.getTortuga().x][map.getTortuga().y];
+            dest = myMap[map.getTortuga().getX()][map.getTortuga().getY()];
             initialNode.calculateH(dest);
             queue.clear();
             queue.add(initialNode);
@@ -47,8 +54,8 @@ public class AStar extends Algorithm{
                 pathLengthWithTortuga = 81;
             if (pathLengthWithTortuga < pathLengthWithoutTortuga) {
                 clearMyMap();
-                initialNode = myMap[map.getTortuga().x][map.getTortuga().y];
-                dest = myMap[map.getChest().x][map.getChest().y];
+                initialNode = myMap[map.getTortuga().getX()][map.getTortuga().getY()];
+                dest = myMap[map.getChest().getX()][map.getChest().getY()];
                 initialNode.calculateH(dest);
                 initialNode.setG(0);
                 queue.clear();
@@ -64,7 +71,7 @@ public class AStar extends Algorithm{
         }
         if (Math.min(pathLengthWithoutTortuga, pathLengthWithTortuga) > 80) {
             writer.println("Lose");
-            return "L";
+            return;
         }
         writer.println("Win");
         if (pathLengthWithoutTortuga <= pathLengthWithTortuga) {
@@ -74,7 +81,6 @@ public class AStar extends Algorithm{
             writer.println(pathLengthWithTortuga);
             displayResult(pathWithTortuga);
         }
-        return "W";
     }
 
     private List<AStarNode> findPath() {
@@ -90,8 +96,8 @@ public class AStar extends Algorithm{
                     map.disableKraken();
                     curNode.setWasKraken(true);
                 }
-                for (int x = Math.max(0, curNode.getNode().x - 1); x <= Math.min(8, curNode.getNode().x + 1); x++) {
-                    for (int y = Math.max(0, curNode.getNode().y - 1); y <= Math.min(8, curNode.getNode().y + 1); y++) {
+                for (int x = Math.max(0, curNode.getNode().getX() - 1); x <= Math.min(8, curNode.getNode().getX() + 1); x++) {
+                    for (int y = Math.max(0, curNode.getNode().getY() - 1); y <= Math.min(8, curNode.getNode().getY() + 1); y++) {
                         if (myMap[x][y].equals(curNode))
                             continue;
                         if (!(myMap[x][y].getG() > curNode.getG() + 1))
@@ -100,12 +106,12 @@ public class AStar extends Algorithm{
                             continue;
                         if (closedSet.contains(myMap[x][y]) && myMap[x][y].getG() < curNode.getG() + 1)
                             continue;
-                        if (myMap[x][y].getNode().kraken && myMap[x][y].getNode().enemy && tortuga) {
+                        if (myMap[x][y].getNode().isKraken() && myMap[x][y].getNode().isEnemy() && tortuga) {
                             //disableKraken(x, y);
                             map.disableKraken();
                             myMap[x][y].setWasKraken(curNode.isWasKraken());
                         }
-                        if (myMap[x][y].getNode().enemy) {
+                        if (myMap[x][y].getNode().isEnemy()) {
                             continue;
                         }
                         myMap[x][y].setData(curNode);
@@ -137,9 +143,9 @@ public class AStar extends Algorithm{
 
     private boolean isKrakenNear(AStarNode curNode) {
         boolean t = false;
-        for (int i = Math.max(0, curNode.getNode().x - 1); i <= Math.min(8, curNode.getNode().x + 1); i++) {
-            for (int j = Math.max(0, curNode.getNode().y - 1); j <= Math.min(8, curNode.getNode().y + 1); j++) {
-                if (myMap[i][j].getNode().kraken && i != curNode.getNode().x && j != curNode.getNode().y) {
+        for (int i = Math.max(0, curNode.getNode().getX() - 1); i <= Math.min(8, curNode.getNode().getX() + 1); i++) {
+            for (int j = Math.max(0, curNode.getNode().getY() - 1); j <= Math.min(8, curNode.getNode().getY() + 1); j++) {
+                if (myMap[i][j].getNode().isKraken() && i != curNode.getNode().getX() && j != curNode.getNode().getY()) {
                     t = true;
                     break;
                 }
@@ -158,7 +164,7 @@ public class AStar extends Algorithm{
 
     private void displayResult(List<AStarNode> path) {
         for (AStarNode e : path) {
-            writer.printf("[%d,%d] ", e.getNode().x, e.getNode().y);
+            writer.printf("[%d,%d] ", e.getNode().getX(), e.getNode().getY());
         }
         writer.println();
         writer.println("-------------------");
