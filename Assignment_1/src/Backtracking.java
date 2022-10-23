@@ -23,7 +23,6 @@ public class Backtracking extends Algorithm {
         Set<Node> visited = new HashSet<>();
         Stack<Node> pathWithoutTortuga = traverse(visited, map.getJack(), map, map.getChest(), false);
         int pathLengthWithoutTortuga = pathWithoutTortuga.size() - 1;
-        //System.out.println("Algorithm without tortuga is finished");
         int pathLengthWithTortuga = 81;
         Stack<Node> pathWithTortuga = new Stack<>();
         if (pathLengthWithoutTortuga > Math.max(Math.abs(map.getJack().getX() - map.getTortuga().getX()), Math.abs(map.getJack().getY() - map.getTortuga().getY())) + Math.max(Math.abs(map.getTortuga().getX() - map.getChest().getX()), Math.abs(map.getTortuga().getY() - map.getChest().getY()))) {

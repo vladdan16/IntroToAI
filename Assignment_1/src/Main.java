@@ -24,14 +24,43 @@ public class Main {
         int type = readInput();
         if (type == 1 || type == 2) {
             runAlgorithms();
-        } else {
-            runStatistics();
+        } else if (type == 3){
+            collectStatistics();
+        } else if (type == 4) {
+            analyzeStatistics();
         }
         consoleWriter.close();
         consoleScanner.close();
     }
 
-    private static void runStatistics() throws FileNotFoundException {
+    private static void analyzeStatistics() throws FileNotFoundException {
+        Scanner backtrackingScanner = new Scanner(new File("backtrackingData1.txt"));
+        Scanner aStarScanner = new Scanner(new File("aStarData1.txt"));
+        Statistics backtrackingStatistics = new Statistics(backtrackingScanner, consoleWriter);
+        Statistics aStarStatistics = new Statistics(aStarScanner, consoleWriter);
+        consoleWriter.println("Statistics for Backtracking with 1 perception scenario");
+        backtrackingStatistics.calculate();
+        consoleWriter.println("Statistics for A* with 1 perception scenario");
+        aStarStatistics.calculate();
+
+        backtrackingScanner.close();
+        aStarScanner.close();
+
+        backtrackingScanner = new Scanner(new File("backtrackingData2.txt"));
+        aStarScanner = new Scanner(new File("aStarData2.txt"));
+        backtrackingStatistics = new Statistics(backtrackingScanner, consoleWriter);
+        aStarStatistics = new Statistics(aStarScanner, consoleWriter);
+        consoleWriter.println("Statistics for Backtracking with 2 perception scenario");
+        backtrackingStatistics.calculate();
+        consoleWriter.println("Statistics for A* with 2 perception scenario");
+        aStarStatistics.calculate();
+
+        backtrackingScanner.close();
+        aStarScanner.close();
+        
+    }
+
+    private static void collectStatistics() throws FileNotFoundException {
         PrintWriter backtrackingDataWriter = new PrintWriter("backtrackingData1.txt");
         PrintWriter aStarDataWriter = new PrintWriter("aStarData1.txt");
         for (int i = 0; i < 1000; i++) {
@@ -100,6 +129,7 @@ public class Main {
         consoleWriter.println("1. Generate the map and manually insert perception scenario from console");
         consoleWriter.println("2. Insert the positions of agents and perception scenario from the input.txt");
         consoleWriter.println("3. Run 1000 random tests to collect statistics");
+        consoleWriter.println("4. Analyze statistical data");
         consoleWriter.flush();
         while (true) {
             int inputType = consoleScanner.nextInt();
@@ -110,11 +140,11 @@ public class Main {
             else if (inputType == 2) {
                 readFromFile();
                 return inputType;
-            } else if (inputType == 3) {
+            } else if (inputType == 3 || inputType == 4) {
                 return inputType;
             }
             else {
-                consoleWriter.println("Wrong input type. Choose 1, 2, or 3");
+                consoleWriter.println("Wrong input type. Choose 1, 2, 3, or 4");
                 consoleWriter.flush();
             }
         }
