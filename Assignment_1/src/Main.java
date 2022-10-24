@@ -24,6 +24,7 @@ public class Main {
         int type = readInput();
         if (type == 1 || type == 2) {
             runAlgorithms();
+            map.displayMap(); // Displaying map to console
         } else if (type == 3){
             collectStatistics();
         } else if (type == 4) {
@@ -42,7 +43,7 @@ public class Main {
             generateData(1);
             k1 = checkDifference(k1);
         }
-        consoleWriter.printf("There was found %d differences for 1st perception scenario", k1);
+        consoleWriter.printf("There was found %d differences for 1st perception scenario\n", k1);
 
         consoleWriter.flush();
 
@@ -51,7 +52,7 @@ public class Main {
             generateData(2);
             k2 = checkDifference(k2);
         }
-        consoleWriter.printf("There was found %d differences for 2nd perception scenario", k2);
+        consoleWriter.printf("There was found %d differences for 2nd perception scenario\n", k2);
 
         if (k1 + k2 == 0) {
             consoleWriter.println("Thanks God! Your algorithms are ok!");
@@ -141,7 +142,6 @@ public class Main {
     }
 
     private static String[][] runAlgorithms() throws FileNotFoundException {
-        //map.displayMap(); // Displaying map to console
 
         String[][] data = new String[2][];
 

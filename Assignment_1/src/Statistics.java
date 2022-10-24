@@ -3,17 +3,28 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
+/**
+ * A class for analyzing statistics
+ */
 class Statistics {
     private final Scanner scanner;
     private final PrintWriter writer;
     private final String[][] data;
 
+    /**
+     * A public constructor that accepts from where we need read data and to which output write it
+     * @param scanner Scanner instance
+     * @param writer PrintWriter instance
+     */
     public Statistics(Scanner scanner, PrintWriter writer) {
         this.scanner = scanner;
         this.writer = writer;
         data = new String[1000][2];
     }
 
+    /**
+     * A public void to calculate statistical data
+     */
     public void calculate() {
         if (!readData()) {
             writer.println("Data file is missing or has errors");

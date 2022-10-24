@@ -31,6 +31,7 @@ public class AStar extends Algorithm{
         }
     }
     public String[] compute() {
+        //map.displayMap();
         initialNode = myMap[map.getJack().getX()][map.getJack().getY()];
         initialNode.setG(0);
         dest = myMap[map.getChest().getX()][map.getChest().getY()];
@@ -87,6 +88,11 @@ public class AStar extends Algorithm{
     }
 
     private List<AStarNode> findPath() {
+        if (initialNode.equals(dest)) {
+            ArrayList<AStarNode> t = new ArrayList<>();
+            t.add(initialNode);
+            return t;
+        }
         map.activateKraken();
         if (initialNode.getNode().isEnemy()) {
             return new ArrayList<>();
@@ -140,13 +146,6 @@ public class AStar extends Algorithm{
     private void addChild(AStarNode curNode, int x, int y, int cost, AStarNode pr) {
         if (!(myMap[x][y].getG() > curNode.getG() + 1))
             return;
-        if (cost == 2) {
-            pr.setData(curNode);
-            pr.calculateH(dest);
-            myMap[x][y].setData(pr);
-        } else {
-            myMap[x][y].setData(curNode);
-        }
         myMap[x][y].calculateH(dest);
         int f = myMap[x][y].getH() + curNode.getG() + cost;
         if (queue.contains(myMap[x][y]) && myMap[x][y].getF() < f)
@@ -156,8 +155,16 @@ public class AStar extends Algorithm{
         if (myMap[x][y].getNode().isKraken() && myMap[x][y].getNode().isEnemy() && tortuga) {
             map.disableKraken();
         }
-        if (myMap[x][y].getNode().isEnemy()) {
+        if (myMap[x][y].getNode().isEnemy() || myMap[x][y].getNode().isRock()) {
             return;
+        }
+        if (cost == 2) {
+            if (pr.getF() > curNode.getF())
+                pr.setData(curNode);
+            pr.calculateH(dest);
+            myMap[x][y].setData(pr);
+        } else {
+            myMap[x][y].setData(curNode);
         }
         myMap[x][y].setWasKraken(curNode.isWasKraken());
         queue.add(myMap[x][y]);
@@ -218,18 +225,5 @@ public class AStar extends Algorithm{
             writer.println();
         }
         writer.println("-------------------");
-    }
-
-    /**
-     * A method for displaying map of f values for debugging
-     */
-    private void displayMap() {
-        for (int i = 0; i < 9; i++) {
-            for (int j = 0; j < 9; j++) {
-                System.out.printf("%2d ", myMap[i][j].getF());
-            }
-            System.out.println();
-        }
-        System.out.println();
     }
 }

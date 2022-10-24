@@ -179,6 +179,9 @@ class Map {
         }
     }
 
+    /**
+     * A method to show data to console. It is used in case of generating data.
+     */
     public void showData() {
         for (int i = 0; i < 6; i++) {
             System.out.printf("[%d,%d] ", a[i][0], a[i][1]);

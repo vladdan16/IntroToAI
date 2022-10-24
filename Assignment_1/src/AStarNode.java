@@ -35,6 +35,8 @@ public class AStarNode implements Comparable<AStarNode>{
      * @param parent An AStarNode that we set to field parent
      */
     public void setData(AStarNode parent) {
+        if (parent.g + 1 > getG())
+            return;
         setG(parent.g + 1);
         setParent(parent);
         computeF();
