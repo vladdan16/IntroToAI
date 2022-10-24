@@ -179,6 +179,13 @@ class Map {
         }
     }
 
+    public void showData() {
+        for (int i = 0; i < 6; i++) {
+            System.out.printf("[%d,%d] ", a[i][0], a[i][1]);
+        }
+        System.out.printf("\n%d\n", getPerceptionType());
+    }
+
     /**
      * A method to get Node by given coordinates
      * @param x x coordinate

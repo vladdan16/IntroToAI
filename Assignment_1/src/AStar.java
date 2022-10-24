@@ -8,6 +8,7 @@ public class AStar extends Algorithm{
     private final AStarNode[][] myMap;
     private final PriorityQueue<AStarNode> queue;
     private final Set<AStarNode> closedSet;
+    private AStarNode initialNode;
     private AStarNode dest;
     private boolean tortuga;
 
@@ -29,8 +30,8 @@ public class AStar extends Algorithm{
             }
         }
     }
-    public String compute() {
-        AStarNode initialNode = myMap[map.getJack().getX()][map.getJack().getY()];
+    public String[] compute() {
+        initialNode = myMap[map.getJack().getX()][map.getJack().getY()];
         initialNode.setG(0);
         dest = myMap[map.getChest().getX()][map.getChest().getY()];
         initialNode.calculateH(dest);
@@ -71,21 +72,25 @@ public class AStar extends Algorithm{
         }
         if (Math.min(pathLengthWithoutTortuga, pathLengthWithTortuga) > 80) {
             writer.println("Lose");
-            return "L";
+            return new String[]{"L", "0"};
         }
         writer.println("Win");
         if (pathLengthWithoutTortuga <= pathLengthWithTortuga) {
             writer.println(pathLengthWithoutTortuga);
             displayResult(pathWithoutTortuga);
+            return new String[]{"W", String.valueOf(pathLengthWithoutTortuga)};
         } else {
             writer.println(pathLengthWithTortuga);
             displayResult(pathWithTortuga);
+            return new String[]{"W", String.valueOf(pathLengthWithTortuga)};
         }
-        return "W";
     }
 
     private List<AStarNode> findPath() {
         map.activateKraken();
+        if (initialNode.getNode().isEnemy()) {
+            return new ArrayList<>();
+        }
         while (!queue.isEmpty()) {
             AStarNode curNode = queue.poll();
             if (curNode == dest) {

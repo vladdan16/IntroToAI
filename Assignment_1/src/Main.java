@@ -28,9 +28,63 @@ public class Main {
             collectStatistics();
         } else if (type == 4) {
             analyzeStatistics();
+        } else if (type == 5) {
+            checkMyAlgorithms();
         }
         consoleWriter.close();
         consoleScanner.close();
+    }
+
+    private static void checkMyAlgorithms() throws FileNotFoundException {
+        consoleWriter.println("This is check of algorithms for 1 perception scenario");
+        int k1 = 0;
+        for (int i = 0; i < 1000; i++) {
+            generateData(1);
+            k1 = checkDifference(k1);
+        }
+        consoleWriter.printf("There was found %d differences for 1st perception scenario", k1);
+
+        consoleWriter.flush();
+
+        int k2 = 0;
+        for (int i = 0; i < 1000; i++) {
+            generateData(2);
+            k2 = checkDifference(k2);
+        }
+        consoleWriter.printf("There was found %d differences for 2nd perception scenario", k2);
+
+        if (k1 + k2 == 0) {
+            consoleWriter.println("Thanks God! Your algorithms are ok!");
+        }
+
+        consoleWriter.flush();
+    }
+
+    private static int checkDifference(int k) throws FileNotFoundException {
+        String[][] t = runAlgorithms();
+        if (!t[0][1].equals(t[1][1])) {
+            k++;
+            consoleWriter.println("Algorithms give different result!");
+            printInfo(t);
+        } else if (!t[0][2].equals(t[1][2])) {
+            k++;
+            consoleWriter.println("Algorithms give same result, but different path lengths!");
+            printInfo(t);
+        }
+        map.clear();
+        return k;
+    }
+
+    private static void printInfo(String[][] t) {
+        consoleWriter.printf("Backtracking: %s, AStar: %s\n", t[0][1], t[1][1]);
+        consoleWriter.printf("Path lengths for Backtracking: %s, AStar: %s\n", t[0][2], t[1][2]);
+        consoleWriter.println("Map for such case:");
+        consoleWriter.flush();
+        map.displayMap();
+        consoleWriter.println("Test:");
+        consoleWriter.flush();
+        map.showData();
+        consoleWriter.println();
     }
 
     private static void analyzeStatistics() throws FileNotFoundException {
@@ -87,49 +141,64 @@ public class Main {
     }
 
     private static String[][] runAlgorithms() throws FileNotFoundException {
-        map.displayMap(); // Displaying map to console
+        //map.displayMap(); // Displaying map to console
 
         String[][] data = new String[2][];
-        data[0] = new String[2];
-        data[1] = new String[2];
 
-        // Starting perform Backtracking
-        PrintWriter backtrackingWriter = new PrintWriter("outputBacktracking.txt");
-        Algorithm backtracking = new Backtracking(map, backtrackingWriter);
-        long start = System.currentTimeMillis();
-        long startNs = System.nanoTime();
-        data[0][1] = backtracking.compute();
-        long end = System.currentTimeMillis();
-        long endNs = System.nanoTime();
-        backtrackingWriter.printf("%d ms\n", end - start);
-        backtrackingWriter.close();
-        consoleWriter.println("Backtracking algorithm is finished successfully. Execution time: " + (end - start) + "ms");
-        data[0][0] = String.valueOf(endNs - startNs);
+        data[0] = runBacktracking();
 
-        //Starting perform AStar
-        PrintWriter aStarWriter = new PrintWriter("outputAStar.txt");
-        Algorithm aStar = new AStar(map, aStarWriter);
-        start = System.currentTimeMillis();
-        startNs = System.nanoTime();
-        data[1][1] = aStar.compute();
-        end = System.currentTimeMillis();
-        endNs = System.nanoTime();
-        aStarWriter.printf("%d ms\n", end - start);
-        aStarWriter.close();
-        consoleWriter.println("A* algorithm is finished successfully. Execution time: " + (end - start) + "ms");
-        data[1][0] = String.valueOf(endNs - startNs);
+        data[1] = runAStar();
 
         consoleWriter.flush();
 
         return data;
     }
 
+    private static String[] runBacktracking() throws FileNotFoundException {
+        String[] t;
+        String[] ans = new String[3];
+        PrintWriter backtrackingWriter = new PrintWriter("outputBacktracking.txt");
+        Algorithm backtracking = new Backtracking(map, backtrackingWriter);
+        long start = System.currentTimeMillis();
+        long startNs = System.nanoTime();
+        t = backtracking.compute();
+        long end = System.currentTimeMillis();
+        long endNs = System.nanoTime();
+        ans[1] = t[0];
+        ans[2] = t[1];
+        backtrackingWriter.printf("%d ms\n", end - start);
+        backtrackingWriter.close();
+        //consoleWriter.println("Backtracking algorithm is finished successfully. Execution time: " + (end - start) + "ms");
+        ans[0] = String.valueOf(endNs - startNs);
+        return ans;
+    }
+
+    private static String[] runAStar() throws FileNotFoundException {
+        String[] t;
+        String[] ans = new String[3];
+        PrintWriter aStarWriter = new PrintWriter("outputAStar.txt");
+        Algorithm aStar = new AStar(map, aStarWriter);
+        long start = System.currentTimeMillis();
+        long startNs = System.nanoTime();
+        t = aStar.compute();
+        long end = System.currentTimeMillis();
+        long endNs = System.nanoTime();
+        ans[1] = t[0];
+        ans[2] = t[1];
+        aStarWriter.printf("%d ms\n", end - start);
+        aStarWriter.close();
+        //consoleWriter.println("A* algorithm is finished successfully. Execution time: " + (end - start) + "ms");
+        ans[0] = String.valueOf(endNs - startNs);
+        return ans;
+    }
+
     private static int readInput() {
-        consoleWriter.println("Choose an input type:");
+        consoleWriter.println("Choose what you want to perform:");
         consoleWriter.println("1. Generate the map and manually insert perception scenario from console");
         consoleWriter.println("2. Insert the positions of agents and perception scenario from the input.txt");
         consoleWriter.println("3. Run 1000 random tests to collect statistics");
         consoleWriter.println("4. Analyze statistical data");
+        consoleWriter.println("5. Run random tests and check if both algorithm works properly");
         consoleWriter.flush();
         while (true) {
             int inputType = consoleScanner.nextInt();
@@ -140,11 +209,11 @@ public class Main {
             else if (inputType == 2) {
                 readFromFile();
                 return inputType;
-            } else if (inputType == 3 || inputType == 4) {
+            } else if (inputType == 3 || inputType == 4 || inputType == 5) {
                 return inputType;
             }
             else {
-                consoleWriter.println("Wrong input type. Choose 1, 2, 3, or 4");
+                consoleWriter.println("Wrong input type. Choose 1, 2, 3, 4, or 5");
                 consoleWriter.flush();
             }
         }
