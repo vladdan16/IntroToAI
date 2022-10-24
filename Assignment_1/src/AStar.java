@@ -4,7 +4,7 @@ import java.util.*;
 /**
  * A class for AStar algorithm that extends Algorithm
  */
-public class AStar extends Algorithm{
+class AStar extends Algorithm{
     private final AStarNode[][] myMap;
     private final PriorityQueue<AStarNode> queue;
     private final Set<AStarNode> closedSet;

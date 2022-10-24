@@ -4,7 +4,7 @@ import java.util.*;
 /**
  * Class for Backtracking algorithm that extends Algorithm
  */
-public class Backtracking extends Algorithm {
+class Backtracking extends Algorithm {
     private final int[][] minPathLengthArray;
 
     /**

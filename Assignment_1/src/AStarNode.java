@@ -1,7 +1,7 @@
 /**
  * A class AStarNode to store necessary parameters of node for AStar algorithm
  */
-public class AStarNode implements Comparable<AStarNode>{
+class AStarNode implements Comparable<AStarNode>{
     private final Node node;
     private int f;
     private int g;

@@ -247,6 +247,14 @@ class Map {
         this.perceptionType = perceptionType;
     }
 
+    /**
+     * Getter for a
+     * @return 2d array
+     */
+    public int[][] getA() {
+        return a;
+    }
+
     private int[] generateCoordinates() {
         Random random = new Random();
         int[] t = new int[2];
@@ -264,5 +272,4 @@ class Map {
             }
         }
     }
-
 }

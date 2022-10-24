@@ -2,7 +2,10 @@ import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Scanner;
+import java.util.Set;
 
 /**
  * Main class of program
@@ -31,9 +34,33 @@ public class Main {
             analyzeStatistics();
         } else if (type == 5) {
             checkMyAlgorithms();
+        } else if (type == 6) {
+            generateImpossibleMaps();
         }
         consoleWriter.close();
         consoleScanner.close();
+    }
+
+    private static void generateImpossibleMaps() throws FileNotFoundException {
+        consoleWriter.println("Generating impossible maps...");
+        Set<String> set = new HashSet<>();
+        for (int i = 0; i < 1000; i++) {
+            map.clear();
+            generateData(1);
+            String[][] t = runAlgorithms();
+            if (t[0][1].equals("W"))
+                continue;
+            String tt = Arrays.deepToString(map.getA());
+            if (set.contains(tt))
+                continue;
+            set.add(tt);
+            consoleWriter.println("Here is a map that impossible to solve (Lose)");
+            map.displayMap();
+            consoleWriter.println();
+            consoleWriter.flush();
+        }
+        consoleWriter.printf("There was found %d impossible maps\n", set.size());
+        consoleWriter.flush();
     }
 
     private static void checkMyAlgorithms() throws FileNotFoundException {
@@ -198,7 +225,8 @@ public class Main {
         consoleWriter.println("2. Insert the positions of agents and perception scenario from the input.txt");
         consoleWriter.println("3. Run 1000 random tests to collect statistics");
         consoleWriter.println("4. Analyze statistical data");
-        consoleWriter.println("5. Run random tests and check if both algorithm works properly");
+        consoleWriter.println("5. Run 1000 random tests and check if both algorithm works properly");
+        consoleWriter.println("6. Generate maps that impossible to sole");
         consoleWriter.flush();
         while (true) {
             int inputType = consoleScanner.nextInt();
@@ -209,11 +237,11 @@ public class Main {
             else if (inputType == 2) {
                 readFromFile();
                 return inputType;
-            } else if (inputType == 3 || inputType == 4 || inputType == 5) {
+            } else if (inputType == 3 || inputType == 4 || inputType == 5 || inputType == 6) {
                 return inputType;
             }
             else {
-                consoleWriter.println("Wrong input type. Choose 1, 2, 3, 4, or 5");
+                consoleWriter.println("Wrong input type. Choose 1, 2, 3, 4, 5, or 6");
                 consoleWriter.flush();
             }
         }
