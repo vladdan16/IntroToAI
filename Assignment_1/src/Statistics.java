@@ -1,7 +1,6 @@
 import java.io.PrintWriter;
-import java.util.HashMap;
+import java.util.*;
 import java.util.Map;
-import java.util.Scanner;
 
 /**
  * A class for analyzing statistics
@@ -32,6 +31,7 @@ class Statistics {
         }
         writer.printf("Mean: %f\n", calculateMean());
         writer.printf("Mode: %f\n", calculateMode());
+        writer.printf("Median: %f\n", calculateMedian());
         writer.printf("Standard deviation: %f\n", calculateStandardDeviation());
         writer.printf("Loses: %d\n", numberOfLoses());
         writer.printf("Wins: %d\n", numberOfWins());
@@ -93,6 +93,22 @@ class Statistics {
             }
         }
         return ans / 100;
+    }
+
+    private double calculateMedian() {
+        int[] list = new int[data.length];
+        for (int i = 0; i < data.length; i++) {
+            int t = Integer.parseInt(data[i][0]);
+            list[i] = t;
+        }
+        Arrays.sort(list);
+        double ans = list[data.length / 2];
+        if (data.length % 2 == 0) {
+            ans += list[data.length / 2 + 1];
+            ans /= 2;
+        }
+        ans /= 1000000;
+        return ans;
     }
 
     private int numberOfLoses() {
