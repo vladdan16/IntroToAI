@@ -4,75 +4,76 @@ import math
 
 def get_key(key, minor):
     keys = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-    return keys[key] + minor
+    if minor:
+        return keys[key] + 'm'
+    return keys[key]
 
 
-file = mido.MidiFile('input1.mid')
+def detect_key(file):
+    d = [0] * 12
 
-# for msg in file:
-#     if (msg.type == 'note_on'):
-#         print('on', msg.note, msg.time)
-#     if (msg.type == 'note_off'):
-#         print('off', msg.note, msg.time)
+    for track in file.tracks[1:]:
+        for msg in track:
+            if msg.type == 'note_on':
+                print('on', msg.note, msg.time)
+            if msg.type == 'note_off':
+                print('off', msg.note, msg.time)
+                d[msg.note % 12] += msg.time
 
-d = dict()
+    print(d)
 
-for i in range(12):
-    d[i] = 0
+    def correlation(a, b):
+        mean_a = sum(a) / len(a)
+        mean_b = sum(b) / len(b)
+        numerator = 0
+        denominator1 = 0
+        denominator2 = 0
+        for i in range(len(a)):
+            numerator += (a[i] - mean_a) * (b[i] - mean_b)
+            denominator1 += (a[i] - mean_a) ** 2
+            denominator2 += (b[i] - mean_b) ** 2
+        denominator = math.sqrt(denominator1 * denominator2)
+        return numerator / denominator
 
-for track in file.tracks[1:]:
-    for msg in track:
-        if msg.type == 'note_on':
-            print('on', msg.note, msg.time)
-        if msg.type == 'note_off':
-            print('off', msg.note, msg.time)
-            d[msg.note % 12] += msg.time
+    major_profile = [17.7661, 0.145624, 14.9265, 0.160186, 19.8049, 11.3587, 0.291248, 22.062, 0.145624, 8.15494,
+                     0.232998,
+                     4.95122]
+    minor_profile = [18.2648, 0.737619, 14.0499, 16.8599, 0.702494, 14.4362, 0.702494, 18.6161, 4.56621, 1.93186,
+                     7.37619,
+                     1.75623]
 
-print(d)
+    max_r = - (10 ** 6)
+    key = 0
+    minor = False
 
-mean_d = 0
-for i in range(12):
-    mean_d += d[i]
-mean_d /= 12
+    correlations_maj = []
+    correlations_min = []
 
-major_profile = [6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88]
-mean_major = sum(major_profile) / len(major_profile)
-minor_profile = [6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17]
-mean_minor = sum(minor_profile) / len(minor_profile)
-max_r = - (10 ** 6)
-key = 0
-minor = ''
+    # Checking for major keys
+    for i in range(12):
+        correlations_maj.append(correlation(major_profile, d))
+        d = d[1:] + d[0:1]
 
-# Checking for major keys
-for i in range(12):
-    s1 = 0
-    s21 = 0
-    s22 = 0
-    for j in range(12):
-        s1 += (major_profile[j] - mean_major) * (d[(j + 12 - i) % 12] - mean_d)
-        s21 += (major_profile[j] - mean_major) ** 2
-        s22 += (d[(j + 12 - i) % 12] - mean_d) ** 2
-    s2 = math.sqrt(s21 * s22)
-    r = s1 / s2
-    if r > max_r:
-        max_r = r
-        key = i
+    for i in range(12):
+        correlations_min.append(correlation(minor_profile, d))
+        d = d[1:] + d[0:1]
 
-for i in range(12):
-    s1 = 0
-    s21 = 0
-    s22 = 0
-    for j in range(12):
-        s1 += (minor_profile[j] - mean_minor) * (d[(j + 12 - i) % 12] - mean_d)
-        s21 += (minor_profile[j] - mean_minor) ** 2
-        s22 += (d[(j + 12 - i) % 12] - mean_d) ** 2
-    s2 = math.sqrt(s21 * s22)
-    r = s1 / s2
-    if r > max_r:
-        max_r = r
-        key = i
-        minor = 'm'
+    for i in range(12):
+        if correlations_maj[i] > max_r:
+            max_r = correlations_maj[i]
+            key = i
 
-print(key, minor, max_r)
+    for i in range(12):
+        if correlations_min[i] > max_r:
+            max_r = correlations_min[i]
+            key = i
+            minor = True
 
-print(get_key(key, minor))
+    print(key, minor, max_r)
+    print(get_key(key, minor))
+
+    return key, minor
+
+
+file = mido.MidiFile('input3.mid')
+detect_key(file)
