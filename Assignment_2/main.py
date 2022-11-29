@@ -269,7 +269,7 @@ def run(n, population_size=500, generation_number=50):
     A function to run main body of program for n-th composition
     :param n: int n - composition
     :param population_size: size of each population
-    :param generation_number: number of generation for evolutionary algorithm
+    :param generation_number: number of generation for genetic algorithm
     """
     file = mido.MidiFile('input%d.mid' % n)
     # file = mido.MidiFile('barbiegirl_mono.mid')
@@ -285,13 +285,13 @@ def run(n, population_size=500, generation_number=50):
     beats = math.ceil(ticks / file.ticks_per_beat)
     possible_chords = get_possible_chords(key, minor)
     population = []
-    individual = None
     for i in range(population_size):
         population.append(random.choices(possible_chords, k=beats))
 
     def fitness(individual) -> int:
         """
         A fitness function for current individual
+        Score is a value that represents fitness
         :param individual: array of Chords - accompaniment
         :return: int fitness score for given individual
         """
@@ -370,7 +370,7 @@ def run(n, population_size=500, generation_number=50):
             if p >= chance_to_mutate:
                 individual[i] = random.choice(possible_chords)
 
-    # start performing evolutionary algorithm
+    # start performing genetic algorithm
     for i in range(generation_number):
         selected = selection()
         next_generation = []
@@ -387,7 +387,6 @@ def run(n, population_size=500, generation_number=50):
 
     # start to output the fittest individual
     octave -= 2
-    print(octave)
     new_track = mido.MidiTrack()
     for e in fittest:
         for i in e.get_midi_array():
