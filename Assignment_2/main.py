@@ -7,21 +7,43 @@ from typing import List, Tuple
 
 
 class Note:
+    """
+    Class Note that store necessary information about some note and contains some methods
+    """
     def __init__(self, n):
-        self.note = n % 12
+        """
+        Constructor for Note
+        :param n: int midi code of note
+        """
         self.octave = n // 12
+        self.note = n % 12
 
-    def get_midi_number(self):
+    def get_midi_number(self) -> int:
+        """
+        Method to compute midi number for current Note
+        :return: int midi code
+        """
         return 12 * self.octave + self.note
 
-    def get_note(self):
+    def get_note(self) -> int:
+        """
+        Getter for note
+        :return: int value from 0 to 11
+        """
         return self.note
 
-    def get_octave(self):
+    def get_octave(self) -> int:
+        """
+        Getter for
+        :return: int value - octave
+        """
         return self.octave
 
 
 class ChordType(Enum):
+    """
+    Enumerator for types of possible Chords
+    """
     major_triad = 0
     minor_triad = 1
     first_inverted_major = 2
@@ -34,39 +56,49 @@ class ChordType(Enum):
 
 
 class Chord:
+    """
+    Class that represents music Chord
+    """
     def __init__(self, note, type):
-        offset = []
-        if type == ChordType.major_triad:
-            offset = [0, 4, 7]
-        elif type == ChordType.minor_triad:
-            offset = [0, 3, 7]
-        elif type == ChordType.first_inverted_major:
-            offset = [12, 4, 7]
-        elif type == ChordType.first_inverted_minor:
-            offset = [12, 3, 7]
-        elif type == ChordType.second_inverted_major:
-            offset = [12, 16, 7]
-        elif type == ChordType.second_inverted_minor:
-            offset = [12, 15, 7]
-        elif type == ChordType.dim:
-            offset = [0, 3, 6]
-        elif type == ChordType.sus2:
-            offset = [0, 2, 7]
-        elif type == ChordType.sus4:
-            offset = [0, 5, 7]
+        """
+        Constructor for Chord
+        :param note: Note instance
+        :param type: ChordType enum instance
+        """
+        offsets = [
+            [0, 4, 7],
+            [0, 3, 7],
+            [12, 4, 7],
+            [12, 3, 7],
+            [12, 16, 7],
+            [12, 15, 7],
+            [0, 3, 6],
+            [0, 2, 7],
+            [0, 5, 7],
+        ]
         self.notes = []
         for i in range(3):
-            n = Note(note.get_midi_number() + offset[i])
+            n = Note(note.get_midi_number() + offsets[type.value][i])
             self.notes.append(n)
 
-    def get_midi_array(self):
+    def get_midi_array(self) -> List:
+        """
+        Method to get a list of midi codes for notes in current Chords
+        :return: List of midi numbers
+        """
         array = []
         for note in self.notes:
             array.append(note.get_midi_number())
         return array
 
 
-def get_key(key, minor) -> List:
+def get_key(key, minor) -> str:
+    """
+    A function to get string value of given key
+    :param key: int value of some key
+    :param minor: boolean value that says about is key is minor
+    :return: string value of given key
+    """
     keys = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
     if minor:
         return keys[key] + 'm'
@@ -74,19 +106,26 @@ def get_key(key, minor) -> List:
 
 
 def detect_key(file) -> Tuple:
+    """
+    A function to detect major key for given file
+    :param file: MidiFile instance
+    :return: Tuple - int value of key and boolean value of type of key: minor or major
+    """
     d = [0] * 12
 
     for track in file.tracks[1:]:
         for msg in track:
-            #if msg.type == 'note_on':
-                #print('on', msg.note, msg.time)
             if msg.type == 'note_off':
-                #print('off', msg.note, msg.time)
+                # print('off', msg.note, msg.time)
                 d[msg.note % 12] += msg.time
 
-    #print(d)
-
     def correlation(a, b) -> float:
+        """
+        A function to calculate a correlation coefficient for two arrays of values
+        :param a: first data array
+        :param b: second data array
+        :return: float value - correlation coefficient
+        """
         mean_a = sum(a) / len(a)
         mean_b = sum(b) / len(b)
         numerator = 0
@@ -131,13 +170,16 @@ def detect_key(file) -> Tuple:
             key = i
             minor = True
 
-    #print(key, minor, max_r)
-    #print(get_key(key, minor))
-
     return key, minor
 
 
 def get_possible_chords(key, minor) -> List:
+    """
+    A function to get all possible Chords for detected key
+    :param key: detected key
+    :param minor: boolean value - minor or not
+    :return: List of all possible Chords
+    """
     res = []
     major_table = [
         [0, 2, 4, 5, 7, 9, 11],
@@ -210,9 +252,30 @@ def get_possible_chords(key, minor) -> List:
     return res
 
 
-def run(n):
+def detect_octave(file) -> int:
+    """
+    A function to detect octave for given MidiFile
+    :param file: MidiFile instance
+    :return: int value - octave
+    """
+    for track in file.tracks:
+        for msg in track:
+            if msg.type == 'note_on':
+                return msg.note // 12
+
+
+def run(n, population_size=500, generation_number=50):
+    """
+    A function to run main body of program for n-th composition
+    :param n: int n - composition
+    :param population_size: size of each population
+    :param generation_number: number of generation for evolutionary algorithm
+    """
     file = mido.MidiFile('input%d.mid' % n)
+    # file = mido.MidiFile('barbiegirl_mono.mid')
     key, minor = detect_key(file)
+
+    octave = detect_octave(file)
 
     ticks = 0
     for track in file.tracks:
@@ -223,12 +286,15 @@ def run(n):
     possible_chords = get_possible_chords(key, minor)
     population = []
     individual = None
-    population_size = 500
-    generation_number = 50
     for i in range(population_size):
         population.append(random.choices(possible_chords, k=beats))
 
     def fitness(individual) -> int:
+        """
+        A fitness function for current individual
+        :param individual: array of Chords - accompaniment
+        :return: int fitness score for given individual
+        """
         score = 0
         for tick in range(0, ticks, file.ticks_per_beat):
             cur_note = 0
@@ -258,6 +324,10 @@ def run(n):
         return score
 
     def selection() -> List:
+        """
+        A function to perform a selection from population
+        :return: List of selected individuals
+        """
         selected = []
         for i in range(population_size):
             a = numpy.random.randint(population_size)
@@ -272,6 +342,12 @@ def run(n):
         return selected
 
     def crossover(a, b) -> List:
+        """
+        A function to crossover two individuals
+        :param a: number of first individual in population
+        :param b: number of second individual in population
+        :return: List - new_individual
+        """
         x = population[a]
         y = population[b]
         child = []
@@ -283,13 +359,18 @@ def run(n):
                 child.append(y[i])
         return child
 
-    def mutation(individual):
-        chance_to_mutate = 0.8
+    def mutation(individual, chance_to_mutate=0.8):
+        """
+        A function to perform mutation for individual
+        :param individual: List - Chords
+        :param chance_to_mutate: chance to mutate Chromosome of individual
+        """
         for i in range(len(individual)):
             p = random.random()
             if p >= chance_to_mutate:
                 individual[i] = random.choice(possible_chords)
 
+    # start performing evolutionary algorithm
     for i in range(generation_number):
         selected = selection()
         next_generation = []
@@ -304,25 +385,28 @@ def run(n):
 
     fittest = population[0]
 
-    octave = 4
-    track = mido.MidiTrack()
+    # start to output the fittest individual
+    octave -= 2
+    print(octave)
+    new_track = mido.MidiTrack()
     for e in fittest:
         for i in e.get_midi_array():
             msg = mido.Message('note_on', note=(octave * 12 + i), velocity=50, time=0)
-            track.append(msg)
+            new_track.append(msg)
         msg = mido.Message('note_off', note=(octave * 12 + e.get_midi_array()[0]), velocity=50,
                            time=file.ticks_per_beat)
-        track.append(msg)
+        new_track.append(msg)
 
         for i in e.get_midi_array()[1:]:
             msg = mido.Message('note_off', note=(octave * 12 + i), velocity=50, time=0)
-            track.append(msg)
+            new_track.append(msg)
 
-    file.tracks.append(track)
+    file.tracks.append(new_track)
     file.save('VladislavDanshovOutput%d-%s.mid' % (n, get_key(key, minor)))
     print('Accompaniment for input%d.mid is generated' % n)
 
 
+# the place where our program starts
 run(1)
 run(2)
 run(3)
