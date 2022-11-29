@@ -78,13 +78,13 @@ def detect_key(file) -> Tuple:
 
     for track in file.tracks[1:]:
         for msg in track:
-            if msg.type == 'note_on':
-                print('on', msg.note, msg.time)
+            #if msg.type == 'note_on':
+                #print('on', msg.note, msg.time)
             if msg.type == 'note_off':
-                print('off', msg.note, msg.time)
+                #print('off', msg.note, msg.time)
                 d[msg.note % 12] += msg.time
 
-    print(d)
+    #print(d)
 
     def correlation(a, b) -> float:
         mean_a = sum(a) / len(a)
@@ -131,8 +131,8 @@ def detect_key(file) -> Tuple:
             key = i
             minor = True
 
-    print(key, minor, max_r)
-    print(get_key(key, minor))
+    #print(key, minor, max_r)
+    #print(get_key(key, minor))
 
     return key, minor
 
@@ -210,116 +210,119 @@ def get_possible_chords(key, minor) -> List:
     return res
 
 
-file = mido.MidiFile('input1.mid')
-key, minor = detect_key(file)
+def run(n):
+    file = mido.MidiFile('input%d.mid' % n)
+    key, minor = detect_key(file)
 
-ticks = 0
-for track in file.tracks:
-    for msg in track:
-        if msg.type == 'note_on' or msg.type == 'note_off':
-            ticks += msg.time
-beats = math.ceil(ticks / file.ticks_per_beat)
-possible_chords = get_possible_chords(key, minor)
-population = []
-individual = None
-population_size = 500
-generation_number = 50
-for i in range(population_size):
-    population.append(random.choices(possible_chords, k=beats))
-
-
-def fitness(individual) -> int:
-    score = 0
-    for tick in range(0, ticks, file.ticks_per_beat):
-        cur_note = 0
-        count = 0
-        for track in file.tracks:
-            for msg in track:
-                if msg.type == 'note_on':
-                    count += msg.time
-                    if count >= tick:
-                        cur_note = Note(msg.note)
-                        break
-            if cur_note != 0:
-                break
-
-        if cur_note != 0:
-            notes = []
-            for e in individual[tick // file.ticks_per_beat].get_midi_array():
-                notes.append(Note(e).get_note())
-            if cur_note.get_note() in notes:
-                score += 10
-    for i in range(0, len(individual) - 1):
-        if abs(individual[i].get_midi_array()[0] - individual[i + 1].get_midi_array()[0]) >= 5:
-            score -= 10
-        if individual[i].get_midi_array()[0] == individual[i + 1].get_midi_array()[0]:
-            score -= 5
-
-    return score
-
-
-def selection() -> List:
-    selected = []
+    ticks = 0
+    for track in file.tracks:
+        for msg in track:
+            if msg.type == 'note_on' or msg.type == 'note_off':
+                ticks += msg.time
+    beats = math.ceil(ticks / file.ticks_per_beat)
+    possible_chords = get_possible_chords(key, minor)
+    population = []
+    individual = None
+    population_size = 500
+    generation_number = 50
     for i in range(population_size):
-        a = numpy.random.randint(population_size)
-        b = numpy.random.randint(population_size)
-        for j in numpy.random.randint(0, population_size, 3):
-            if fitness(population[j]) > fitness(population[a]):
-                a = j
-        for j in numpy.random.randint(0, population_size, 3):
-            if fitness(population[j]) > fitness(population[b]):
-                b = j
-        selected.append([a, b])
-    return selected
+        population.append(random.choices(possible_chords, k=beats))
 
+    def fitness(individual) -> int:
+        score = 0
+        for tick in range(0, ticks, file.ticks_per_beat):
+            cur_note = 0
+            count = 0
+            for track in file.tracks:
+                for msg in track:
+                    if msg.type == 'note_on':
+                        count += msg.time
+                        if count >= tick:
+                            cur_note = Note(msg.note)
+                            break
+                if cur_note != 0:
+                    break
 
-def crossover(a, b) -> List:
-    x = population[a]
-    y = population[b]
-    child = []
-    for i in range(len(x)):
-        p = random.randint(1, 2)
-        if p == 1:
-            child.append(x[i])
-        else:
-            child.append(y[i])
-    return child
+            if cur_note != 0:
+                notes = []
+                for e in individual[tick // file.ticks_per_beat].get_midi_array():
+                    notes.append(Note(e).get_note())
+                if cur_note.get_note() in notes:
+                    score += 10
+        for i in range(0, len(individual) - 1):
+            if abs(individual[i].get_midi_array()[0] - individual[i + 1].get_midi_array()[0]) >= 5:
+                score -= 10
+            if individual[i].get_midi_array()[0] == individual[i + 1].get_midi_array()[0]:
+                score -= 5
 
+        return score
 
-def mutation(individual):
-    chance_to_mutate = 0.8
-    for i in range(len(individual)):
-        p = random.random()
-        if p >= chance_to_mutate:
-            individual[i] = random.choice(possible_chords)
+    def selection() -> List:
+        selected = []
+        for i in range(population_size):
+            a = numpy.random.randint(population_size)
+            b = numpy.random.randint(population_size)
+            for j in numpy.random.randint(0, population_size, 3):
+                if fitness(population[j]) > fitness(population[a]):
+                    a = j
+            for j in numpy.random.randint(0, population_size, 3):
+                if fitness(population[j]) > fitness(population[b]):
+                    b = j
+            selected.append([a, b])
+        return selected
 
+    def crossover(a, b) -> List:
+        x = population[a]
+        y = population[b]
+        child = []
+        for i in range(len(x)):
+            p = random.randint(1, 2)
+            if p == 1:
+                child.append(x[i])
+            else:
+                child.append(y[i])
+        return child
 
-for i in range(generation_number):
-    selected = selection()
-    next_generation = []
-    for pair in selected:
-        a, b = pair[0], pair[1]
-        new_individual = crossover(a, b)
-        mutation(new_individual)
-        next_generation.append(new_individual)
-    population += next_generation
-    population = sorted(population, reverse=True, key=fitness)
-    population = population[:population_size]
+    def mutation(individual):
+        chance_to_mutate = 0.8
+        for i in range(len(individual)):
+            p = random.random()
+            if p >= chance_to_mutate:
+                individual[i] = random.choice(possible_chords)
 
-fittest = population[0]
+    for i in range(generation_number):
+        selected = selection()
+        next_generation = []
+        for pair in selected:
+            a, b = pair[0], pair[1]
+            new_individual = crossover(a, b)
+            mutation(new_individual)
+            next_generation.append(new_individual)
+        population += next_generation
+        population = sorted(population, reverse=True, key=fitness)
+        population = population[:population_size]
 
-octave = 3
-track = mido.MidiTrack()
-for e in fittest:
-    for i in e.get_midi_array():
-        msg = mido.Message('note_on', note=(octave * 12 + i), velocity=50, time=0)
+    fittest = population[0]
+
+    octave = 4
+    track = mido.MidiTrack()
+    for e in fittest:
+        for i in e.get_midi_array():
+            msg = mido.Message('note_on', note=(octave * 12 + i), velocity=50, time=0)
+            track.append(msg)
+        msg = mido.Message('note_off', note=(octave * 12 + e.get_midi_array()[0]), velocity=50,
+                           time=file.ticks_per_beat)
         track.append(msg)
-    msg = mido.Message('note_off', note=(octave * 12 + e.get_midi_array()[0]), velocity=50, time=file.ticks_per_beat)
-    track.append(msg)
 
-    for i in e.get_midi_array()[1:]:
-        msg = mido.Message('note_off', note=(octave * 12 + i), velocity=50, time=0)
-        track.append(msg)
+        for i in e.get_midi_array()[1:]:
+            msg = mido.Message('note_off', note=(octave * 12 + i), velocity=50, time=0)
+            track.append(msg)
 
-file.tracks.append(track)
-file.save('VladislavDanshovOutput1-%s.mid' % get_key(key, minor))
+    file.tracks.append(track)
+    file.save('VladislavDanshovOutput%d-%s.mid' % (n, get_key(key, minor)))
+    print('Accompaniment for input%d.mid is generated' % n)
+
+
+run(1)
+run(2)
+run(3)
