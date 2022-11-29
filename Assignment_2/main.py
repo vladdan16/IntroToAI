@@ -299,6 +299,7 @@ def run(n, population_size=500, generation_number=50):
         for tick in range(0, ticks, file.ticks_per_beat):
             cur_note = 0
             count = 0
+            # getting cur_note
             for track in file.tracks:
                 for msg in track:
                     if msg.type == 'note_on':
@@ -316,7 +317,7 @@ def run(n, population_size=500, generation_number=50):
                 if cur_note.get_note() in notes:
                     score += 10
         for i in range(0, len(individual) - 1):
-            if abs(individual[i].get_midi_array()[0] - individual[i + 1].get_midi_array()[0]) >= 5:
+            if abs(individual[i].get_midi_array()[0] - individual[i + 1].get_midi_array()[0]) >= 4:
                 score -= 10
             if individual[i].get_midi_array()[0] == individual[i + 1].get_midi_array()[0]:
                 score -= 5
